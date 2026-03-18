@@ -1,0 +1,336 @@
+
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densityDpi=device-dpi" />
+    <meta name="description" content="&#x130;BB &#x15E;ehir Tiyatrolar&#x131; oyunlar&#x131; bu sayfada. Tiyatro oyunlar&#x131;n&#x131;n konular&#x131;n&#x131;, kadrolar&#x131;n&#x131;, oyuncular&#x131;n&#x131; inceleyin, videolar&#x131;n&#x131; izleyin ve kolayca biletinizi al&#x131;n!" />
+    <meta name="google-site-verification" content="zQrNNx_v46jvo-UOb1Eferk9WhRCICHysGERFYFQX9g" />
+    <title>Oyunlar - İBB Şehir Tiyatroları</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5J2DDV3N5W"></script>
+    <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-5J2DDV3N5W');</script>
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+    <link rel="icon" type="image/x-icon" href="/lib/images/faviconNew.ico" />
+    <link rel="icon" type="image/x-icon" sizes="16x16" href="/lib/images/favicon-16x16.png" />
+    <link rel="icon" type="image/x-icon" sizes="32x32" href="/lib/images/favicon-32x32.png" />
+    <link rel="icon" type="image/x-icon" sizes="180x180" href="/lib/images/apple-touch-icon.png" />
+
+
+
+        <link rel="stylesheet" href="/css/swiper.css?v=20231027&amp;v=0mmjxkvAIhtnX4h8obEvX9vb-Ngc687TqTzgk6ULwsM" />
+        <link rel="stylesheet" href="/css/index.css?v=20250219&amp;v=JtOb-Db0WliHqDc6ipoGxSmKxrWTo0gWzkS5-E0GmEY" />
+</head>
+<body class="dark:bg-white dark:text-black">
+    <div id="headerPartialResult">
+    </div>
+        <div class="flex h-7 w-14 rounded-full absolute top-7 right-0 z-50 dark:bg-gray-100 bg-primary-gray-900 modeChangerDiv">
+            <div class="flex justify-between items-center w-full">
+                <div class="flex justify-center items-center h-6 w-6">
+                    <button class="flex justify-center items-center h-6 w-6 rounded-full dark:bg-primary-yellow-400 dark:text-gray-900 bg-transparent text-gray-200" id="handle-darkmode-off">
+                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex justify-center items-center h-6 w-6">
+                    <button class="flex justify-center items-center h-6 w-6 rounded-full dark:bg-transparent dark:text-gray-900 bg-white text text-gray-900" id="handle-darkmode-on">
+                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    
+<div class="w-full h-60 bg-cover bg-[url(/lib/images/breadcrumbbg.webp)] flex flex-col justify-end items-center pb-10" style="background-image: url( /lib/images/breadcrumbbg.webp);">
+    <h1 class="text-white text-5xl relative border-b-2 self-center border-primary-yellow-400 border-opacity-70 mb-5 sm:text-xl sm:mb-5">Tüm Oyunlar</h1>
+    <div class="flex gap-5">
+        <a href="/" title="Ana Sayfa" class="text-white text-xs hover:text-primary-yellow-400">Ana Sayfa</a>
+        <span class="text-white text-xs">|</span>
+        <a href="/oyunlar" title="Oyunlar" class="text-white text-xs hover:text-primary-yellow-400">Oyunlar</a>
+    </div>
+</div>
+<main class="py-16 flex flex-col sm:py-5">
+    <div class="ibb_container flex flex-col gap-10 sm:gap-5">
+    <div class="w-full grid grid-cols-4 gap-7 sm:flex sm:flex-col  sm:p-5 sm:gap-5">
+        <div class="col-span-3 relative">
+            <div class="absolute left-5 top-0 h-14 flex items-center justify-center">
+                <img src="/lib/images/search.svg" alt="Arama" width="16" />
+            </div>
+            <input onchange="searchStart(this.value)" class="w-full h-14 border-primary-gray-900 border rounded pl-12 bg-primary-gray-800 dark:bg-zinc-100 dark:text-black" placeholder="Oyun Ara" />
+        </div>
+        <div class="col-start-4">
+            <select onchange="location=this.value" class="w-full h-14 border-primary-gray-900 border rounded text-sm pl-5 bg-primary-gray-800 dark:bg-primary-yellow-400 dark:text-black">
+                <option value="/oyunlar">Türe Göre Listele</option>
+                        <option value="/oyunlar?category=25">Yetişkin</option>
+                        <option value="/oyunlar?category=26">Müzikal</option>
+                        <option value="/oyunlar?category=27">Çocuk</option>
+            </select>
+        </div>
+    </div>
+    <div class="w-full flex flex-wrap gap-6 gap-y-20 sm:gap-y-10 sm:px-5 sm:grid-cols-2 sm:gap-x-5 md:grid-cols-3">
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/12-gece" title="12. Gece">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/7b51f0f1378e44d88cc5746382532886.jpg" alt="12. Gece" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/12-gece" title="12. Gece" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">12. Gece</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">Yeti&#x15F;kin</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/agri-dagi-efsanesi" title="Ağrı Dağı Efsanesi">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/74e524aa80584bfba9a607d60176c8d5.jpg" alt="Ağrı Dağı Efsanesi" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/agri-dagi-efsanesi" title="Ağrı Dağı Efsanesi" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Ağrı Dağı Efsanesi</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">Yeti&#x15F;kin</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/ay-carmela" title="Ay, Carmela!">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/271f32b66d474a209b722b04623ed61a.jpg" alt="Ay, Carmela!" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/ay-carmela" title="Ay, Carmela!" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Ay, Carmela!</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">Yeti&#x15F;kin</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/bekci-ile-postaci" title="Bekçi İle Postacı">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/ec82856b43ce46f9ae993fb85832d1a0.jpg" alt="Bekçi İle Postacı" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/bekci-ile-postaci" title="Bekçi İle Postacı" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Bekçi İle Postacı</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">&#xC7;ocuk</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/ben-medea-degilim" title="Ben Medea Değilim">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/7436b22a1c36467e901fafc525c63776.jpg" alt="Ben Medea Değilim" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/ben-medea-degilim" title="Ben Medea Değilim" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Ben Medea Değilim</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">Yeti&#x15F;kin</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/benim-kucuk-yildizim" title="Benim Küçük Yıldızım">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/b47162c1c95d4955a96b2d6025362c9f.jpg" alt="Benim Küçük Yıldızım" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/benim-kucuk-yildizim" title="Benim Küçük Yıldızım" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Benim Küçük Yıldızım</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">&#xC7;ocuk</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/bir-ata-kralligim-adana-buyuksehir-belediyesi-sehir-tiyatrolari" title="''Bir Ata Krallığım'' Adana Büyükşehir Belediyesi Şehir Tiyatroları">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/64eeabad6ab8422fb7fdc82c7ebab1b2.jpg" alt="''Bir Ata Krallığım'' Adana Büyükşehir Belediyesi Şehir Tiyatroları" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/bir-ata-kralligim-adana-buyuksehir-belediyesi-sehir-tiyatrolari" title="''Bir Ata Krallığım'' Adana Büyükşehir Belediyesi Şehir Tiyatroları" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">''Bir Ata Krallığım'' Adana Büyükşehir Belediyesi Şehir Tiyatroları</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">Yeti&#x15F;kin</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/bir-gece-masali" title="Bir Gece Masalı">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/1d7f80f634e846ea9f3230287752c58e.jpg" alt="Bir Gece Masalı" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/bir-gece-masali" title="Bir Gece Masalı" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Bir Gece Masalı</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">&#xC7;ocuk</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/bir-halk-dusmani" title="Bir Halk Düşmanı">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/246c5a3cc14b4bd5925ef6a314c24d97.jpg" alt="Bir Halk Düşmanı" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/bir-halk-dusmani" title="Bir Halk Düşmanı" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Bir Halk Düşmanı</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">Yeti&#x15F;kin</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/bir-ziyaret" title="Bir Ziyaret">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/1027693928c54d9985a2593faf5f388e.jpg" alt="Bir Ziyaret" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/bir-ziyaret" title="Bir Ziyaret" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Bir Ziyaret</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">Yeti&#x15F;kin</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/bu-memleket-bizim" title="Bu Memleket Bizim">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/625da839389b41a489f0d3b012788442.jpg" alt="Bu Memleket Bizim" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/bu-memleket-bizim" title="Bu Memleket Bizim" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Bu Memleket Bizim</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">Yeti&#x15F;kin</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/cadi-kazani" title="Cadı Kazanı">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/1daad6a2520e4fbda1ee0e2cf344e9f0.jpg" alt="Cadı Kazanı" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/cadi-kazani" title="Cadı Kazanı" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Cadı Kazanı</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">Yeti&#x15F;kin</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/cingene-boksor" title="Çingene Boksör">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/f07d7a2549fc4009951b16fdf1ed9ca5.jpg" alt="Çingene Boksör" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/cingene-boksor" title="Çingene Boksör" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Çingene Boksör</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">Yeti&#x15F;kin</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/copsuz-dunya" title="Çöpsüz Dünya">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/767a7106753f474b817deb00c1a4f7e5.jpg" alt="Çöpsüz Dünya" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/copsuz-dunya" title="Çöpsüz Dünya" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Çöpsüz Dünya</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">&#xC7;ocuk</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/elma-kurdu-kirtik" title="Elma Kurdu Kırtık">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/52a48cba3b4d44beb707749853b76f84.jpg" alt="Elma Kurdu Kırtık" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/elma-kurdu-kirtik" title="Elma Kurdu Kırtık" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Elma Kurdu Kırtık</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">&#xC7;ocuk</time>
+                </div>
+
+            </div>
+            <div class="flex flex-col w-[calc(25%-18px)] md:w-[calc(32%-8px)] sm:w-[calc(50%-10px)]">
+
+                <figure class="max-h-500 overflow-hidden">
+                    <a href="oyun/findikkiran" title="Fındıkkıran">
+                        <img class="rounded" src="https://b6s54eznn8xq.merlincdn.net/IBB/TheatrePlay/146d6a9895c749e6a825d804a10efa6d.jpg" alt="Fındıkkıran" />
+                    </a>
+                </figure>
+                <div class="w-full flex flex-col text-center justify-center items-center gap-1 pt-4 sm:pt-3">
+                    <a href="oyun/findikkiran" title="Fındıkkıran" class="font-bold text-lg sm:text-base hover:text-primary-yellow-400 line-clamp-1">Fındıkkıran</a>
+                    <time datetime="2020-08-07" class="text-xs sm:text-xxs text-primary-gray-300">&#xC7;ocuk</time>
+                </div>
+
+            </div>
+    </div>
+    <div class="w-full flex flex-wrap gap-3 justify-center mt-10">
+                    <a href="/oyunlar?page=1" title="1" class="w-10 h-10 hover:bg-primary-gray-800 flex items-center justify-center border-zinc-100 text-zinc-100 border rounded dark:bg-zinc-100 dark:text-black">1</a>
+                    <a href="/oyunlar?page=2" title="2" class="w-10 h-10 hover:bg-primary-gray-800 flex items-center justify-center border-primary-gray-700 border rounded dark:bg-zinc-100 dark:text-black">2</a>
+                    <a href="/oyunlar?page=3" title="3" class="w-10 h-10 hover:bg-primary-gray-800 flex items-center justify-center border-primary-gray-700 border rounded dark:bg-zinc-100 dark:text-black">3</a>
+                    <a href="/oyunlar?page=4" title="4" class="w-10 h-10 hover:bg-primary-gray-800 flex items-center justify-center border-primary-gray-700 border rounded dark:bg-zinc-100 dark:text-black">4</a>
+    </div>
+</div>
+</main>
+
+    <div id="footerPartialResult" >
+    </div>
+
+    
+        <script src="/js/jquery.js"></script>
+        <script src="/js/swiper.js?v=20231127&amp;v=fycO89Pef-5n9QhSnhY3uKgE1vhg52rYya65APlfJf0"></script>
+        <script src="/js/main.js?v=20240111&amp;v=zuf7IwjZd2rEKi1iKRe0d1yeBKDugp7HvRU7xESjKRg"></script>
+        <script src="/js/photoswipe.js?v=20231128&amp;v=oOcT3QU9S9SZMYjfLcGsdtnaGll6kCzI083RG8dtWYs"></script>
+    
+    <script>
+        function searchStart(value) {
+            if (value.length > 1) {
+                window.location.href = '/oyunlar?search=' + value;
+            }
+        }
+    </script>
+
+    <script>
+        // (Context.Request.Query.Where(x => x.Key == "from").FirstOrDefault().Value == "miniapp")
+
+                $.get('/Home/GetHeader', function (content) {
+                    $("#headerPartialResult").html(content);
+
+                    var btn = document.getElementById("btnLogin");
+                    var mobilBtn = document.getElementById("btnLoginMobil");
+                    $.ajax({
+                        type: "POST",
+                        dataType: 'json',
+                        url: "/WebLogin/GetUserDetail",
+                        success: function (data) {
+                            if (data != "null") {
+                                btn.innerText = data;
+                                mobilBtn.innerHTML = data;
+                            }
+                        }
+                    });
+                });
+            $.get('/Home/GetFooter', function (content) {
+                $("#footerPartialResult").html(content);
+            });
+                </script>
+</body>
+</html>

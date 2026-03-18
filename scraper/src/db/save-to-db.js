@@ -1,0 +1,336 @@
+const pool = require('./connection');
+
+// Oyun kaydet
+async function savePlay(playData) {
+    const client = await pool.connect();
+    try {
+        // Önce oyun var mı kontrol et
+        const checkPlay = await client.query(
+            'SELECT id FROM plays WHERE slug = $1',
+            [playData.slug]
+        );
+
+        let playId;
+
+        if (checkPlay.rows.length > 0) {
+            // Oyun zaten var, güncelle
+            playId = checkPlay.rows[0].id;
+            await client.query(
+                `UPDATE plays 
+                SET title = $1, description = $2, poster_url = $3, 
+                    duration = $4, genre = $5, biletinial_url = $6, 
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = $7`,
+                [playData.title, playData.description, playData.posterUrl,
+                playData.duration, playData.genre, playData.url, playId]
+            );
+            console.log(`✓ Oyun güncellendi: ${playData.title}`);
+        } else {
+            // Yeni oyun ekle
+            const result = await client.query(
+                `INSERT INTO plays (title, slug, description, poster_url, duration, genre, biletinial_url)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING id`,
+                [playData.title, playData.slug, playData.description,
+                playData.posterUrl, playData.duration, playData.genre, playData.url]
+            );
+            playId = result.rows[0].id;
+            console.log(`✓ Yeni oyun eklendi: ${playData.title}`);
+        }
+
+        // Eski gösterimleri sil (yeni verilerle güncellenecek)
+        await client.query('DELETE FROM showtimes WHERE play_id = $1', [playId]);
+
+        // Gösterimleri kaydet
+        for (const showtime of playData.showtimes) {
+            // Mekanı bul veya oluştur
+            let venueId = await findOrCreateVenue(client, showtime.venue);
+
+            // Gösterimi kaydet
+            const showtimeResult = await client.query(
+                `INSERT INTO showtimes 
+                (play_id, venue_id, city, show_datetime, show_date_text, price_min, price_text, organizer)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                RETURNING id`,
+                [playId, venueId, showtime.city, showtime.dateTime,
+                    showtime.dateTimeText,
+                    showtime.price.min ? parseFloat(showtime.price.min.replace(',', '.')) : null,
+                    showtime.price.text, showtime.organizer]
+            );
+
+            const showtimeId = showtimeResult.rows[0].id;
+
+            // Fiyat kategorilerini kaydet
+            for (const category of showtime.price.categories) {
+                await client.query(
+                    `INSERT INTO price_categories (showtime_id, category_name, price)
+                    VALUES ($1, $2, $3)`,
+                    [showtimeId, category.name, category.price]
+                );
+            }
+        }
+
+        console.log(`✅ ${playData.title} tüm verileriyle kaydedildi!`);
+        return playId;
+
+    } catch (err) {
+        console.error('❌ Hata:', err);
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
+// Mekan bul veya oluştur (yardımcı fonksiyon)
+async function findOrCreateVenue(client, venueData) {
+    if (!venueData.url) return null;
+
+    const slug = venueData.url.split('/').pop();
+
+    const checkVenue = await client.query(
+        'SELECT id FROM venues WHERE slug = $1',
+        [slug]
+    );
+
+    if (checkVenue.rows.length > 0) {
+        return checkVenue.rows[0].id;
+    }
+
+    const result = await client.query(
+        `INSERT INTO venues (name, slug, address, biletinial_url)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id`,
+        [venueData.name, slug, venueData.address, venueData.url]
+    );
+
+    return result.rows[0].id;
+}
+
+// Mekan kaydet (detaylı)
+async function saveVenue(venueData) {
+    const client = await pool.connect();
+    try {
+        const checkVenue = await client.query(
+            'SELECT id FROM venues WHERE slug = $1',
+            [venueData.slug]
+        );
+
+        let venueId;
+
+        if (checkVenue.rows.length > 0) {
+            // Mekan var, güncelle
+            venueId = checkVenue.rows[0].id;
+            await client.query(
+                `UPDATE venues 
+                SET name = $1, address = $2, phone = $3, description = $4, 
+                    cover_image = $5, biletinial_url = $6, updated_at = CURRENT_TIMESTAMP
+                WHERE id = $7`,
+                [venueData.name, venueData.address, venueData.phone,
+                venueData.description, venueData.coverImage, venueData.url, venueId]
+            );
+            console.log(`✓ Mekan güncellendi: ${venueData.name}`);
+        } else {
+            // Yeni mekan
+            const result = await client.query(
+                `INSERT INTO venues (name, slug, address, phone, description, cover_image, biletinial_url)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING id`,
+                [venueData.name, venueData.slug, venueData.address, venueData.phone,
+                venueData.description, venueData.coverImage, venueData.url]
+            );
+            venueId = result.rows[0].id;
+            console.log(`✓ Yeni mekan eklendi: ${venueData.name}`);
+        }
+
+        // Eski galeri resimlerini sil
+        await client.query('DELETE FROM venue_gallery WHERE venue_id = $1', [venueId]);
+
+        // Galeri resimlerini kaydet
+        for (const imageUrl of venueData.galleryImages) {
+            await client.query(
+                `INSERT INTO venue_gallery (venue_id, image_url) VALUES ($1, $2)`,
+                [venueId, imageUrl]
+            );
+        }
+
+        console.log(`✅ ${venueData.name} galerisiyle birlikte kaydedildi!`);
+        return venueId;
+
+    } catch (err) {
+        console.error('❌ Hata:', err);
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
+// Öneri / keşif kayıt fonksiyonu
+async function saveSuggestion(suggestionData) {
+    const client = await pool.connect();
+    try {
+        const type = suggestionData.type || 'play';
+        const slug = suggestionData.slug || (suggestionData.biletinial_url ? suggestionData.biletinial_url.split('/').pop() : null);
+
+        const check = await client.query(
+            'SELECT id FROM suggestions WHERE type = $1 AND slug = $2',
+            [type, slug]
+        );
+
+        if (check.rows.length > 0) {
+            const id = check.rows[0].id;
+            await client.query(
+                `UPDATE suggestions SET title = $1, image_url = $2, city = $3, biletinial_url = $4, metadata = $5, discovered_at = CURRENT_TIMESTAMP WHERE id = $6`,
+                [suggestionData.title, suggestionData.image, suggestionData.city, suggestionData.url, suggestionData.metadata || {}, id]
+            );
+            console.log(`✓ Öneri güncellendi: ${suggestionData.title}`);
+            return id;
+        } else {
+            const result = await client.query(
+                `INSERT INTO suggestions (type, title, slug, image_url, city, biletinial_url, metadata) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+                [type, suggestionData.title, slug, suggestionData.image, suggestionData.city, suggestionData.url, suggestionData.metadata || {}]
+            );
+            console.log(`✓ Yeni öneri eklendi: ${suggestionData.title}`);
+            return result.rows[0].id;
+        }
+
+    } catch (err) {
+        console.error('❌ Hata (saveSuggestion):', err);
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
+// IBB Mekan kaydet (ibb_url kullanır, biletinial_url null)
+async function saveIbbVenue(venueData) {
+    const client = await pool.connect();
+    try {
+        const check = await client.query(
+            'SELECT id FROM venues WHERE slug = $1',
+            [venueData.slug]
+        );
+
+        let venueId;
+
+        if (check.rows.length > 0) {
+            venueId = check.rows[0].id;
+            await client.query(
+                `UPDATE venues
+                SET name = $1, address = $2, phone = $3, description = $4,
+                    cover_image = $5, updated_at = CURRENT_TIMESTAMP
+                WHERE id = $6`,
+                [venueData.name, venueData.address, venueData.phone,
+                venueData.description, venueData.coverImage, venueId]
+            );
+            console.log(`✓ IBB Mekan güncellendi: ${venueData.name}`);
+        } else {
+            const result = await client.query(
+                `INSERT INTO venues (name, slug, address, phone, description, cover_image)
+                VALUES ($1, $2, $3, $4, $5, $6)
+                RETURNING id`,
+                [venueData.name, venueData.slug, venueData.address, venueData.phone,
+                venueData.description, venueData.coverImage]
+            );
+            venueId = result.rows[0].id;
+            console.log(`✓ IBB Yeni mekan eklendi: ${venueData.name}`);
+        }
+
+        // Galeri
+        if (venueData.galleryImages && venueData.galleryImages.length > 0) {
+            await client.query('DELETE FROM venue_gallery WHERE venue_id = $1', [venueId]);
+            for (const imageUrl of venueData.galleryImages) {
+                await client.query(
+                    `INSERT INTO venue_gallery (venue_id, image_url) VALUES ($1, $2)`,
+                    [venueId, imageUrl]
+                );
+            }
+        }
+
+        return venueId;
+    } catch (err) {
+        console.error('❌ Hata (saveIbbVenue):', err);
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
+// IBB Oyun kaydet
+async function saveIbbPlay(playData) {
+    const client = await pool.connect();
+    try {
+        const checkPlay = await client.query(
+            'SELECT id FROM plays WHERE slug = $1',
+            [playData.slug]
+        );
+
+        let playId;
+
+        if (checkPlay.rows.length > 0) {
+            playId = checkPlay.rows[0].id;
+            await client.query(
+                `UPDATE plays
+                SET title = $1, description = $2, poster_url = $3,
+                    duration = $4, genre = $5, source = $6, ibb_url = $7,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = $8`,
+                [playData.title, playData.description, playData.posterUrl,
+                playData.duration, playData.genre, 'ibb', playData.url, playId]
+            );
+            console.log(`✓ IBB Oyun güncellendi: ${playData.title}`);
+        } else {
+            const result = await client.query(
+                `INSERT INTO plays (title, slug, description, poster_url, duration, genre, source, ibb_url)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                RETURNING id`,
+                [playData.title, playData.slug, playData.description,
+                playData.posterUrl, playData.duration, playData.genre, 'ibb', playData.url]
+            );
+            playId = result.rows[0].id;
+            console.log(`✓ IBB Yeni oyun eklendi: ${playData.title}`);
+        }
+
+        // Eski gösterimleri sil
+        await client.query('DELETE FROM showtimes WHERE play_id = $1', [playId]);
+
+        for (const showtime of playData.showtimes) {
+            // Sahneyi slug ile bul
+            let venueId = null;
+            if (showtime.venueSlug) {
+                const vr = await client.query(
+                    'SELECT id FROM venues WHERE slug = $1',
+                    [showtime.venueSlug]
+                );
+                if (vr.rows.length > 0) {
+                    venueId = vr.rows[0].id;
+                } else if (showtime.venueName) {
+                    // Slug bulunamazsa name ile dene (ILIKE)
+                    const vr2 = await client.query(
+                        'SELECT id FROM venues WHERE name ILIKE $1',
+                        [showtime.venueName]
+                    );
+                    if (vr2.rows.length > 0) venueId = vr2.rows[0].id;
+                }
+            }
+
+            await client.query(
+                `INSERT INTO showtimes
+                (play_id, venue_id, city, show_datetime, show_date_text, price_min, price_text, organizer)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                [playId, venueId, showtime.city, showtime.dateTime,
+                    showtime.dateTimeText, null, null, showtime.organizer]
+            );
+        }
+
+        console.log(`✅ IBB ${playData.title} kaydedildi (${playData.showtimes.length} gösterim)`);
+        return playId;
+
+    } catch (err) {
+        console.error('❌ Hata (saveIbbPlay):', err);
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
+module.exports = { savePlay, saveVenue, saveSuggestion, saveIbbVenue, saveIbbPlay };
