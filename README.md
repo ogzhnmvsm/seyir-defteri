@@ -1,11 +1,17 @@
 <p align="center">
-  <img src="logo.png" width="96" height="96" style="border-radius: 20px;">
+  <a href="https://github.com/ogzhnmvsm/seyir-defteri">
+    <img src="logo.png" width="112" height="112" style="border-radius: 24px;">
+  </a>
+  <h1 align="center">Seyir Defteri</h1>
+  <p align="center">Tiyatro oyunlarını, sahneleri ve etkinlikleri tek bir platformdan takip edin.</p>
 </p>
 
-# Seyir Defteri
-Tiyatro oyunlarını, sahneleri ve etkinlikleri tek bir platformdan takip edin.
-
-[Canlı Demo](#) · [Hızlı Başlangıç](#hızlı-başlangıç-lokal-kurulum) · [Mimari](#mimari) · [Yayınlama (Deployment)](#yayınlama-deployment)
+<p align="center">
+  <a href="https://seyir-defteri-frontend-url.vercel.app"><b>Canlı Demo (Önyüz)</b></a> · 
+  <a href="https://seyir-defteri.onrender.com"><b>Backend API Sunucusu</b></a> · 
+  <a href="#hızlı-başlangıç-lokal-kurulum">Kurulum</a> · 
+  <a href="#yayınlama-deployment">Yayınlama Rehberi</a>
+</p>
 
 ## Özellikler
 

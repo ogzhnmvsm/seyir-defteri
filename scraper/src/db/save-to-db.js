@@ -201,52 +201,39 @@ async function saveSuggestion(suggestionData) {
     }
 }
 
-// IBB Mekan kaydet (ibb_url kullanır, biletinial_url null)
+// IBB Mekan kaydet (Sistemde varsa günceller, yoksa öneri olarak ekler)
 async function saveIbbVenue(venueData) {
     const client = await pool.connect();
     try {
         const check = await client.query(
-            'SELECT id FROM venues WHERE slug = $1',
-            [venueData.slug]
+            'SELECT id FROM venues WHERE slug = $1 OR name ILIKE $2',
+            [venueData.slug, venueData.name]
         );
 
-        let venueId;
-
         if (check.rows.length > 0) {
-            venueId = check.rows[0].id;
+            const venueId = check.rows[0].id;
             await client.query(
                 `UPDATE venues
-                SET name = $1, address = $2, phone = $3, description = $4,
-                    cover_image = $5, updated_at = CURRENT_TIMESTAMP
-                WHERE id = $6`,
-                [venueData.name, venueData.address, venueData.phone,
-                venueData.description, venueData.coverImage, venueId]
+                SET phone = COALESCE(phone, $1), description = COALESCE(description, $2),
+                    cover_image = COALESCE(cover_image, $3), updated_at = CURRENT_TIMESTAMP
+                WHERE id = $4`,
+                [venueData.phone, venueData.description, venueData.coverImage, venueId]
             );
-            console.log(`✓ IBB Mekan güncellendi: ${venueData.name}`);
+            console.log(`✓ IBB Mekan güncellendi (Kayıt Bulundu): ${venueData.name}`);
+            return venueId;
         } else {
-            const result = await client.query(
-                `INSERT INTO venues (name, slug, address, phone, description, cover_image)
-                VALUES ($1, $2, $3, $4, $5, $6)
-                RETURNING id`,
-                [venueData.name, venueData.slug, venueData.address, venueData.phone,
-                venueData.description, venueData.coverImage]
-            );
-            venueId = result.rows[0].id;
-            console.log(`✓ IBB Yeni mekan eklendi: ${venueData.name}`);
+            const suggestionData = {
+                type: 'venue',
+                title: venueData.name,
+                slug: venueData.slug,
+                image: venueData.coverImage,
+                city: 'İstanbul',
+                url: null,
+                metadata: { source: 'ibb', address: venueData.address, phone: venueData.phone, description: venueData.description }
+            };
+            console.log(`✓ IBB Mekan bulunamadı. Öneri listesine (suggestions) eklendi: ${venueData.name}`);
+            return await saveSuggestion(suggestionData);
         }
-
-        // Galeri
-        if (venueData.galleryImages && venueData.galleryImages.length > 0) {
-            await client.query('DELETE FROM venue_gallery WHERE venue_id = $1', [venueId]);
-            for (const imageUrl of venueData.galleryImages) {
-                await client.query(
-                    `INSERT INTO venue_gallery (venue_id, image_url) VALUES ($1, $2)`,
-                    [venueId, imageUrl]
-                );
-            }
-        }
-
-        return venueId;
     } catch (err) {
         console.error('❌ Hata (saveIbbVenue):', err);
         throw err;
@@ -255,76 +242,63 @@ async function saveIbbVenue(venueData) {
     }
 }
 
-// IBB Oyun kaydet
+// IBB Oyun kaydet (Sistemde varsa günceller, yoksa öneri olarak ekler)
 async function saveIbbPlay(playData) {
     const client = await pool.connect();
     try {
         const checkPlay = await client.query(
-            'SELECT id FROM plays WHERE slug = $1',
-            [playData.slug]
+            'SELECT id FROM plays WHERE slug = $1 OR title ILIKE $2',
+            [playData.slug, playData.title]
         );
 
-        let playId;
-
         if (checkPlay.rows.length > 0) {
-            playId = checkPlay.rows[0].id;
+            const playId = checkPlay.rows[0].id;
             await client.query(
                 `UPDATE plays
-                SET title = $1, description = $2, poster_url = $3,
-                    duration = $4, genre = $5, source = $6, ibb_url = $7,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE id = $8`,
-                [playData.title, playData.description, playData.posterUrl,
-                playData.duration, playData.genre, 'ibb', playData.url, playId]
+                SET ibb_url = $1, updated_at = CURRENT_TIMESTAMP
+                WHERE id = $2`,
+                [playData.url, playId]
             );
-            console.log(`✓ IBB Oyun güncellendi: ${playData.title}`);
-        } else {
-            const result = await client.query(
-                `INSERT INTO plays (title, slug, description, poster_url, duration, genre, source, ibb_url)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-                RETURNING id`,
-                [playData.title, playData.slug, playData.description,
-                playData.posterUrl, playData.duration, playData.genre, 'ibb', playData.url]
-            );
-            playId = result.rows[0].id;
-            console.log(`✓ IBB Yeni oyun eklendi: ${playData.title}`);
-        }
+            console.log(`✓ IBB Oyun güncellendi (Kayıt Bulundu): ${playData.title}`);
 
-        // Eski gösterimleri sil
-        await client.query('DELETE FROM showtimes WHERE play_id = $1', [playId]);
+            await client.query(`DELETE FROM showtimes WHERE play_id = $1 AND organizer ILIKE '%Şehir Tiyatroları%'`, [playId]);
 
-        for (const showtime of playData.showtimes) {
-            // Sahneyi slug ile bul
-            let venueId = null;
-            if (showtime.venueSlug) {
-                const vr = await client.query(
-                    'SELECT id FROM venues WHERE slug = $1',
-                    [showtime.venueSlug]
-                );
-                if (vr.rows.length > 0) {
-                    venueId = vr.rows[0].id;
-                } else if (showtime.venueName) {
-                    // Slug bulunamazsa name ile dene (ILIKE)
-                    const vr2 = await client.query(
-                        'SELECT id FROM venues WHERE name ILIKE $1',
-                        [showtime.venueName]
-                    );
-                    if (vr2.rows.length > 0) venueId = vr2.rows[0].id;
+            for (const showtime of playData.showtimes) {
+                let venueId = null;
+                if (showtime.venueSlug) {
+                    const vr = await client.query('SELECT id FROM venues WHERE slug = $1', [showtime.venueSlug]);
+                    if (vr.rows.length > 0) {
+                        venueId = vr.rows[0].id;
+                    } else if (showtime.venueName) {
+                        const vr2 = await client.query('SELECT id FROM venues WHERE name ILIKE $1', [showtime.venueName]);
+                        if (vr2.rows.length > 0) venueId = vr2.rows[0].id;
+                    }
                 }
+
+                await client.query(
+                    `INSERT INTO showtimes
+                    (play_id, venue_id, city, show_datetime, show_date_text, price_min, price_text, organizer)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                    [playId, venueId, showtime.city, showtime.dateTime,
+                        showtime.dateTimeText, null, null, showtime.organizer]
+                );
             }
+            console.log(`✅ IBB ${playData.title} gösterimleri güncellendi (${playData.showtimes.length} gösterim)`);
+            return playId;
 
-            await client.query(
-                `INSERT INTO showtimes
-                (play_id, venue_id, city, show_datetime, show_date_text, price_min, price_text, organizer)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-                [playId, venueId, showtime.city, showtime.dateTime,
-                    showtime.dateTimeText, null, null, showtime.organizer]
-            );
+        } else {
+            const suggestionData = {
+                type: 'play',
+                title: playData.title,
+                slug: playData.slug,
+                image: playData.posterUrl,
+                city: 'İstanbul',
+                url: playData.url,
+                metadata: { source: 'ibb', duration: playData.duration, genre: playData.genre }
+            };
+            console.log(`✓ IBB Oyun bulunamadı. Öneri listesine (suggestions) eklendi: ${playData.title}`);
+            return await saveSuggestion(suggestionData);
         }
-
-        console.log(`✅ IBB ${playData.title} kaydedildi (${playData.showtimes.length} gösterim)`);
-        return playId;
-
     } catch (err) {
         console.error('❌ Hata (saveIbbPlay):', err);
         throw err;
