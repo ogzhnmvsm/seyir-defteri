@@ -1,0 +1,39 @@
+name: Daily Scraper
+
+on:
+  schedule:
+    # Her gün saat 03:00 UTC (TSİ 06:00) çalışır
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Manuel tetiklemeye izin verir
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./scraper
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './scraper/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Main Scraper
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run scrape:bulk
+
+      - name: Run IBB Scraper
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run ibb
