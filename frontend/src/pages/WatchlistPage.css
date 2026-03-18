@@ -1,0 +1,98 @@
+.wl-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.wl-section-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Play grid */
+.wl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
+  margin-bottom: 8px;
+}
+.wl-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--transition), transform var(--transition);
+}
+.wl-card:hover { border-color: var(--border-accent); transform: translateY(-3px); }
+.wl-card-img {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  display: block;
+}
+.wl-card-body {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+.wl-card-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.35;
+  transition: color var(--transition);
+}
+.wl-card-title:hover { color: var(--accent-light); }
+.wl-card-sub { font-size: 0.73rem; color: var(--text-muted); }
+
+/* Venue grid */
+.wl-venue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.wl-venue-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--transition), transform var(--transition);
+}
+.wl-venue-card:hover { border-color: var(--border-accent); transform: translateY(-2px); }
+.wl-venue-img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+.wl-venue-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+/* Unfollow button */
+.btn-unfollow {
+  margin-top: auto;
+  padding: 5px 10px;
+  border: 1px solid var(--red, #e05050);
+  color: var(--red, #e05050);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: 0.73rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  align-self: flex-start;
+}
+.btn-unfollow:hover { background: var(--red, #e05050); color: #fff; }

@@ -1,0 +1,153 @@
+.rating-list { display: flex; flex-direction: column; gap: 10px; }
+
+.rating-row {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  grid-template-rows: auto;
+  gap: 14px;
+  align-items: center;
+  transition: border-color 0.2s;
+  flex-wrap: wrap;
+}
+.rating-row.has-rating { border-color: var(--border-accent); }
+.rating-row > .rating-editor { grid-column: 1 / -1; }
+
+.rating-poster {
+  width: 48px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--bg-2);
+}
+.rating-info { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.rating-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.rating-title:hover { color: var(--accent-light); }
+.rating-summary { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.rating-went { font-size: 0.78rem; color: var(--text-muted); }
+
+.rating-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.rating-expand-btn {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s, color 0.2s;
+}
+.rating-expand-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+.saving-label { font-size: 0.78rem; color: var(--text-muted); }
+
+/* Star picker */
+.star-picker { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
+.star-label { font-size: 0.82rem; color: var(--text-secondary); margin-left: 6px; font-weight: 700; }
+.star {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--border);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.12s, transform 0.1s;
+}
+.star.filled { color: #fbbf24; }
+.star:hover { transform: scale(1.2); }
+
+/* Rating editor panel */
+.rating-editor {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin-top: 6px;
+}
+.rating-edit-panel { display: flex; flex-direction: column; gap: 12px; }
+.rp-row { display: flex; flex-direction: column; gap: 6px; }
+.rp-label { font-size: 0.8rem; color: var(--text-secondary); }
+.rp-label small { color: var(--text-muted); }
+.rp-label { font-size: 0.8rem; color: var(--text-secondary); }
+
+/* Times attended */
+.times-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.times-btn {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, background 0.2s;
+}
+.times-btn:hover { border-color: var(--accent); background: var(--bg-card); }
+.times-value { font-size: 1.2rem; font-weight: 700; min-width: 24px; text-align: center; color: var(--text-primary); }
+.times-hint { font-size: 0.82rem; color: var(--text-muted); }
+
+/* Date entry */
+.date-entry-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.date-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 8px;
+}
+.date-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-2);
+  border: 1px solid var(--border-accent);
+  border-radius: 99px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  color: var(--text-primary);
+}
+.date-chip-remove {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.72rem;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.date-chip-remove:hover { color: var(--red, #e05050); }
+.rp-textarea {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.rp-textarea:focus { border-color: var(--accent); }
+
+.sticky-search { position: sticky; top: 72px; z-index: 40; margin-bottom: 20px; width: 100%; }

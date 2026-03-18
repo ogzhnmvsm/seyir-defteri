@@ -1,0 +1,82 @@
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+  transition: color var(--transition);
+}
+.back-link:hover { color: var(--accent-light); }
+
+.showtime-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  margin-top: 16px;
+}
+.price-cell { color: var(--green); font-weight: 600; }
+.price-cats { display: flex; flex-direction: column; gap: 2px; }
+.price-cat { font-size: 0.78rem; color: var(--text-secondary); }
+.venue-link { color: var(--accent-light); }
+.venue-link:hover { text-decoration: underline; }
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.btn-rescrape {
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+.btn-rescrape:hover:not(:disabled) { border-color: var(--accent); background: var(--bg-card); }
+.btn-rescrape:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-unfollow-detail {
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid var(--red, #e05050);
+  color: var(--red, #e05050);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.btn-unfollow-detail:hover { background: var(--red, #e05050); color: #fff; }
+
+/* IBB badge ve buton */
+.badge-ibb {
+  background: linear-gradient(135deg, #0d6e6e 0%, #1a9090 100%);
+  color: #e0f7f7;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+}
+.btn-ibb {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #0d6e6e, #1a9090);
+  color: #e0f7f7;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition), transform var(--transition);
+}
+.btn-ibb:hover { opacity: 0.85; transform: translateY(-1px); }
