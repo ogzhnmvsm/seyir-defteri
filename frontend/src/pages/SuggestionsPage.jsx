@@ -25,6 +25,9 @@ export default function SuggestionsPage() {
   const [minRating, setMinRating] = useState(0);
   const [sortBy, setSortBy] = useState('date'); // 'date' | 'title' | 'rating'
 
+  const [sourceFilter, setSourceFilter] = useState('all'); // all | ibb | biletinial
+  const [typeFilter, setTypeFilter] = useState('all'); // all | play | venue
+
   const load = () => {
     setLoading(true);
     getSuggestions({ accepted: false, limit: 500 })
@@ -60,6 +63,12 @@ export default function SuggestionsPage() {
         if (!(item.title || '').toLowerCase().includes(q) &&
             !(item.metadata?.address || '').toLowerCase().includes(q)) return false;
       }
+      
+      if (typeFilter !== 'all' && item.type !== typeFilter) return false;
+      
+      const source = item.metadata?.source || 'biletinial';
+      if (sourceFilter !== 'all' && source !== sourceFilter) return false;
+
       return true;
     })
     .sort((a, b) => {
@@ -75,11 +84,25 @@ export default function SuggestionsPage() {
       <div className="section-title">Öneriler</div>
       <div className="section-subtitle">Scraper tarafından keşfedilen gösterimler. Beğendiklerinizi takibe alın.</div>
 
+      {/* Type & Source Toggles */}
+      <div className="sugg-toggles">
+        <div className="toggle-group">
+          <button className={`toggle-btn ${sourceFilter === 'all' ? 'active' : ''}`} onClick={() => {setSourceFilter('all'); setPage(1);}}>Tüm Kaynaklar</button>
+          <button className={`toggle-btn ${sourceFilter === 'biletinial' ? 'active' : ''}`} onClick={() => {setSourceFilter('biletinial'); setPage(1);}}>Biletinial</button>
+          <button className={`toggle-btn ${sourceFilter === 'ibb' ? 'active' : ''}`} onClick={() => {setSourceFilter('ibb'); setPage(1);}}>İBB Şehir Tiyatroları</button>
+        </div>
+        <div className="toggle-group">
+          <button className={`toggle-btn ${typeFilter === 'all' ? 'active' : ''}`} onClick={() => {setTypeFilter('all'); setPage(1);}}>Tümü</button>
+          <button className={`toggle-btn ${typeFilter === 'play' ? 'active' : ''}`} onClick={() => {setTypeFilter('play'); setPage(1);}}>🎭 Oyunlar</button>
+          <button className={`toggle-btn ${typeFilter === 'venue' ? 'active' : ''}`} onClick={() => {setTypeFilter('venue'); setPage(1);}}>🏛️ Mekanlar</button>
+        </div>
+      </div>
+
       {/* Sticky filter bar */}
       <div className="filter-bar sugg-filter-bar sticky-filter-bar">
         <input
           className="search-input sugg-search"
-          placeholder="🔍 Oyun ara..."
+          placeholder="🔍 Ara..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
         />
@@ -127,11 +150,14 @@ export default function SuggestionsPage() {
                     alt={item.title}
                     onError={(e) => { e.target.src = 'https://placehold.co/200x280/1e1e30/a99ef9?text=🎭'; }}
                   />
+                  {item.type === 'venue' && <span className="sugg-type-badge">🏛️ Mekan</span>}
+                  {item.type === 'play' && <span className="sugg-type-badge">🎭 Oyun</span>}
                   {item.metadata?.rating && (
                     <span className="sugg-rating-badge">⭐ {item.metadata.rating}</span>
                   )}
                 </div>
                 <div className="sugg-card-body">
+                  <div className="sugg-source-badge">{item.metadata?.source === 'ibb' ? 'İBB Tiyatroları' : 'Biletinial'}</div>
                   <div className="sugg-card-title" title={item.title}>{item.title}</div>
                   {item.metadata?.address && (
                     <div className="sugg-card-meta">🏛️ {item.metadata.address}</div>
