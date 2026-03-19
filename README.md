@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/ogzhnmvsm/seyir-defteri">
-    <img src="logo2.png" width="112" height="112" style="border-radius: 24px;">
+    <img src="logo2.png" width="256" height="256" style="border-radius: 24px;">
   </a>
   <h1 align="center">Seyir Defteri</h1>
   <p align="center">Tiyatro oyunlarını, sahneleri ve etkinlikleri tek bir platformdan takip edin.</p>
