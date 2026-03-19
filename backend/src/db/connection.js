@@ -6,6 +6,7 @@ const poolConfig = process.env.DATABASE_URL ? {
     max: 4,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
+    prepare: false,
 } : {
     user: process.env.PG_USER || 'postgres',
     host: process.env.PG_HOST || 'localhost',

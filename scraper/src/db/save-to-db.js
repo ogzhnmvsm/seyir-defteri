@@ -54,7 +54,7 @@ async function savePlay(playData) {
                 RETURNING id`,
                 [playId, venueId, showtime.city, showtime.dateTime,
                     showtime.dateTimeText,
-                    showtime.price.min ? parseFloat(showtime.price.min.replace(',', '.')) : null,
+                    showtime.price.min ? parseFloat(String(showtime.price.min).replace(/[^0-9,.]/g, '').replace(',', '.')) || null : null,
                     showtime.price.text, showtime.organizer]
             );
 
@@ -65,7 +65,7 @@ async function savePlay(playData) {
                 await client.query(
                     `INSERT INTO price_categories (showtime_id, category_name, price)
                     VALUES ($1, $2, $3)`,
-                    [showtimeId, category.name, category.price]
+                    [showtimeId, category.name, parseFloat(String(category.price).replace(/[^0-9,.]/g, '').replace(',', '.')) || null]
                 );
             }
         }
