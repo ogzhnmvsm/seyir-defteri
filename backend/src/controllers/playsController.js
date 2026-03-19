@@ -4,14 +4,11 @@ const { savePlay } = require('../../../scraper/src/db/save-to-db');
 
 // plays tablosuna source + ibb_url kolonu ekle (yoksa)
 async function migratePlaysSchema() {
-    const client = await pool.connect();
     try {
-        await client.query(`ALTER TABLE plays ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'biletinial'`);
-        await client.query(`ALTER TABLE plays ADD COLUMN IF NOT EXISTS ibb_url TEXT`);
+        await pool.query(`ALTER TABLE plays ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'biletinial'`);
+        await pool.query(`ALTER TABLE plays ADD COLUMN IF NOT EXISTS ibb_url TEXT`);
     } catch (e) {
         console.error('plays migration error:', e.message);
-    } finally {
-        client.release();
     }
 }
 migratePlaysSchema();

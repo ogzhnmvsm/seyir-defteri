@@ -2,9 +2,8 @@ const pool = require('../db/connection');
 
 // Auto-migrate: create table if not exists
 async function ensureTable() {
-    const client = await pool.connect();
     try {
-        await client.query(`
+        await pool.query(`
             CREATE TABLE IF NOT EXISTS user_ratings (
                 id SERIAL PRIMARY KEY,
                 play_id INTEGER NOT NULL REFERENCES plays(id) ON DELETE CASCADE,
@@ -18,16 +17,13 @@ async function ensureTable() {
             )
         `);
         // Migrate existing tables: swap showtime_id for new columns
-        const client2 = await pool.connect();
-        try {
-            await client2.query(`ALTER TABLE user_ratings DROP COLUMN IF EXISTS showtime_id`).catch(() => { });
-            await client2.query(`ALTER TABLE user_ratings ADD COLUMN IF NOT EXISTS times_attended INTEGER NOT NULL DEFAULT 0`).catch(() => { });
-            await client2.query(`ALTER TABLE user_ratings ADD COLUMN IF NOT EXISTS attended_dates TEXT[] NOT NULL DEFAULT '{}'`).catch(() => { });
-            await client2.query(`ALTER TABLE user_ratings DROP CONSTRAINT IF EXISTS user_ratings_rating_check`).catch(() => { });
-            await client2.query(`ALTER TABLE user_ratings ADD CONSTRAINT user_ratings_rating_check CHECK (rating >= 1 AND rating <= 10)`).catch(() => { });
-        } finally { client2.release(); }
-    } finally {
-        client.release();
+        await pool.query(`ALTER TABLE user_ratings DROP COLUMN IF EXISTS showtime_id`).catch(() => { });
+        await pool.query(`ALTER TABLE user_ratings ADD COLUMN IF NOT EXISTS times_attended INTEGER NOT NULL DEFAULT 0`).catch(() => { });
+        await pool.query(`ALTER TABLE user_ratings ADD COLUMN IF NOT EXISTS attended_dates TEXT[] NOT NULL DEFAULT '{}'`).catch(() => { });
+        await pool.query(`ALTER TABLE user_ratings DROP CONSTRAINT IF EXISTS user_ratings_rating_check`).catch(() => { });
+        await pool.query(`ALTER TABLE user_ratings ADD CONSTRAINT user_ratings_rating_check CHECK (rating >= 1 AND rating <= 10)`).catch(() => { });
+    } catch (e) {
+        console.error('Ratings table migration error:', e);
     }
 }
 ensureTable().catch((e) => console.error('Ratings table migration failed:', e));

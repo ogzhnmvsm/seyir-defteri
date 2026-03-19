@@ -3,7 +3,8 @@ const { Pool } = require('pg');
 // Database bağlantı ayarları
 const poolConfig = process.env.DATABASE_URL ? {
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+    ssl: { rejectUnauthorized: false },
+    max: 4,
 } : {
     user: process.env.PG_USER || 'postgres',
     host: process.env.PG_HOST || 'localhost',
