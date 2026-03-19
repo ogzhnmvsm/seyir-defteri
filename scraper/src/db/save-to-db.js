@@ -201,8 +201,8 @@ async function saveSuggestion(suggestionData) {
     }
 }
 
-// IBB Mekan kaydet (Sistemde varsa günceller, yoksa öneri olarak ekler)
-async function saveIbbVenue(venueData) {
+// IBB Mekan kaydet (Sistemde varsa günceller, yoksa öneri olarak ekler, forceCreate=true ise zorla tabloya ekler)
+async function saveIbbVenue(venueData, forceCreate = false) {
     const client = await pool.connect();
     try {
         const check = await client.query(
@@ -220,6 +220,23 @@ async function saveIbbVenue(venueData) {
                 [venueData.phone, venueData.description, venueData.coverImage, venueId]
             );
             console.log(`✓ IBB Mekan güncellendi (Kayıt Bulundu): ${venueData.name}`);
+            return venueId;
+        } else if (forceCreate) {
+            const result = await client.query(
+                `INSERT INTO venues (name, slug, address, phone, description, cover_image)
+                VALUES ($1, $2, $3, $4, $5, $6)
+                RETURNING id`,
+                [venueData.name, venueData.slug, venueData.address, venueData.phone,
+                venueData.description, venueData.coverImage]
+            );
+            const venueId = result.rows[0].id;
+            console.log(`✓ IBB Yeni mekan eklendi: ${venueData.name}`);
+            if (venueData.galleryImages && venueData.galleryImages.length > 0) {
+                await client.query('DELETE FROM venue_gallery WHERE venue_id = $1', [venueId]);
+                for (const imageUrl of venueData.galleryImages) {
+                    await client.query(`INSERT INTO venue_gallery (venue_id, image_url) VALUES ($1, $2)`, [venueId, imageUrl]);
+                }
+            }
             return venueId;
         } else {
             const suggestionData = {
@@ -242,8 +259,8 @@ async function saveIbbVenue(venueData) {
     }
 }
 
-// IBB Oyun kaydet (Sistemde varsa günceller, yoksa öneri olarak ekler)
-async function saveIbbPlay(playData) {
+// IBB Oyun kaydet (Sistemde varsa günceller, yoksa öneri olarak ekler, forceCreate=true ise zorla tabloya ekler)
+async function saveIbbPlay(playData, forceCreate = false) {
     const client = await pool.connect();
     try {
         const checkPlay = await client.query(
@@ -286,6 +303,34 @@ async function saveIbbPlay(playData) {
             console.log(`✅ IBB ${playData.title} gösterimleri güncellendi (${playData.showtimes.length} gösterim)`);
             return playId;
 
+        } else if (forceCreate) {
+            const result = await client.query(
+                `INSERT INTO plays (title, slug, description, poster_url, duration, genre, source, ibb_url)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                RETURNING id`,
+                [playData.title, playData.slug, playData.description,
+                playData.posterUrl, playData.duration, playData.genre, 'ibb', playData.url]
+            );
+            const playId = result.rows[0].id;
+            console.log(`✓ IBB Yeni oyun eklendi: ${playData.title}`);
+
+            for (const showtime of playData.showtimes) {
+                let venueId = null;
+                if (showtime.venueSlug) {
+                    const vr = await client.query('SELECT id FROM venues WHERE slug = $1', [showtime.venueSlug]);
+                    if (vr.rows.length > 0) venueId = vr.rows[0].id;
+                    else if (showtime.venueName) {
+                        const vr2 = await client.query('SELECT id FROM venues WHERE name ILIKE $1', [showtime.venueName]);
+                        if (vr2.rows.length > 0) venueId = vr2.rows[0].id;
+                    }
+                }
+                await client.query(
+                    `INSERT INTO showtimes (play_id, venue_id, city, show_datetime, show_date_text, price_min, price_text, organizer)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                    [playId, venueId, showtime.city, showtime.dateTime, showtime.dateTimeText, null, null, showtime.organizer]
+                );
+            }
+            return playId;
         } else {
             const suggestionData = {
                 type: 'play',

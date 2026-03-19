@@ -85,14 +85,44 @@ async function acceptSuggestion(req, res) {
             try { slug = suggestion.biletinial_url.split('/').pop(); } catch (e) { slug = null; }
         }
 
-        // Scrape + save depending on type
+        // Determine source
+        let source = 'biletinial';
+        if (suggestion.metadata && suggestion.metadata.source) {
+            source = suggestion.metadata.source;
+        }
+
+        // Scrape + save depending on type and source
         let createdId = null;
-        if (suggestion.type === 'play' && slug) {
-            const playData = await scrapePlay(slug);
-            createdId = await savePlay(playData);
-        } else if (suggestion.type === 'venue' && slug) {
-            const venueData = await scrapeVenue(slug);
-            createdId = await saveVenue(venueData);
+
+        if (source === 'ibb') {
+            const { saveIbbPlay, saveIbbVenue } = require('../../../scraper/src/db/save-to-db');
+            if (suggestion.type === 'play' && slug) {
+                const { scrapeIbbPlay } = require('../../../scraper/src/scrapers/ibb-scraper');
+                const playData = await scrapeIbbPlay(slug);
+                createdId = await saveIbbPlay(playData, true);
+            } else if (suggestion.type === 'venue' && slug) {
+                const { scrapeVenueDetail } = require('../../../scraper/src/scrapers/ibb-scraper');
+                const detail = await scrapeVenueDetail(slug);
+                const venueData = {
+                    name: suggestion.title,
+                    slug: suggestion.slug,
+                    coverImage: suggestion.image_url,
+                    address: suggestion.metadata.address,
+                    phone: suggestion.metadata.phone,
+                    description: suggestion.metadata.description,
+                    capacity: detail?.capacity,
+                    galleryImages: detail?.galleryImages || []
+                };
+                createdId = await saveIbbVenue(venueData, true);
+            }
+        } else {
+            if (suggestion.type === 'play' && slug) {
+                const playData = await scrapePlay(slug);
+                createdId = await savePlay(playData);
+            } else if (suggestion.type === 'venue' && slug) {
+                const venueData = await scrapeVenue(slug);
+                createdId = await saveVenue(venueData);
+            }
         }
 
         // Mark accepted and add created id into metadata if available
