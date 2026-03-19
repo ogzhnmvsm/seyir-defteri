@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo_rounded.png" width="128" height="128" alt="Seyir Defteri Logo">
+  <img src="logo_rounded.png" width="256" height="256" alt="Seyir Defteri Logo">
 </p>
 
 <h1 align="center">Seyir Defteri</h1>
