@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon --watch src -e js --exec node src/index.js",
-    "postinstall": "cd ../scraper && npm install && npx puppeteer browsers install chrome"
+    "postinstall": "cd ../scraper && PUPPETEER_CACHE_DIR=/opt/render/.cache/puppeteer npm install"
   },
   "type": "commonjs",
   "dependencies": {
