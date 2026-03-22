@@ -1,5 +1,4 @@
 const puppeteer = require('puppeteer');
-const fs = require('fs');
 
 async function scrapePlay(playSlug) {
     console.log(`\n🎭 ${playSlug} oyunu çekiliyor...\n`);
@@ -49,27 +48,22 @@ async function scrapePlay(playSlug) {
             const shows = cityDiv.querySelectorAll('.ed-biletler__sehir__gun');
 
             shows.forEach(show => {
-                // Tarih ve saat
                 const timeElement = show.querySelector('time[itemprop="startDate"]');
                 const dateTimeStr = timeElement ? timeElement.getAttribute('content') : null;
                 const dateTimeText = timeElement ? timeElement.innerText.trim() : null;
 
-                // Mekan
                 const venueElement = show.querySelector('a[itemprop="location"] address[itemprop="name"]');
                 const venueName = venueElement ? venueElement.innerText.trim().replace('Adres', '').trim() : null;
                 const venueLink = show.querySelector('a[itemprop="location"]');
                 const venueUrl = venueLink ? venueLink.getAttribute('href') : null;
 
-                // Adres
                 const addressElement = show.querySelector('meta[itemprop="streetAddress"]');
                 const address = addressElement ? addressElement.getAttribute('content') : null;
 
-                // Fiyat
                 const priceElement = show.querySelector('.price-info[itemprop="price"]');
                 const priceMin = priceElement ? priceElement.getAttribute('content') : null;
                 const priceText = priceElement ? priceElement.innerText.trim() : null;
 
-                // Fiyat kategorileri (JSON'dan parse et)
                 const priceTooltip = show.querySelector('.ticket_price_tooltip');
                 let priceCategories = [];
                 if (priceTooltip) {
@@ -80,7 +74,6 @@ async function scrapePlay(playSlug) {
                     } catch (e) { }
                 }
 
-                // Organizatör
                 const organizerElement = show.querySelector('.ed-biletler__sehir__gun__organizator span');
                 const organizer = organizerElement ? organizerElement.innerText.trim() : null;
 
@@ -111,18 +104,15 @@ async function scrapePlay(playSlug) {
             duration,
             genre,
             showtimes,
-            url: window.location.href
+            url: window.location.href,
+            source: 'biletinial'
         };
     });
 
     console.log('\n✅ VERİ BAŞARIYLA ÇEKİLDİ!\n');
-    console.log('📊 ÇEKİLEN VERİ ÖZETİ:');
-    console.log('='.repeat(50));
     console.log(`Oyun: ${playData.title}`);
     console.log(`Poster: ${playData.posterUrl ? '✓' : '✗'}`);
-    console.log(`Açıklama: ${playData.description ? playData.description.substring(0, 100) + '...' : '✗'}`);
     console.log(`Toplam Gösterim: ${playData.showtimes.length}`);
-    console.log('='.repeat(50));
 
     await browser.close();
     return playData;

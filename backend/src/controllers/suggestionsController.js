@@ -1,7 +1,7 @@
 const pool = require('../db/connection');
-const { scrapePlay } = require('../../../scraper/src/scrapers/play-scraper');
-const { scrapeVenue } = require('../../../scraper/src/scrapers/venue-scraper');
-const { savePlay, saveVenue } = require('../../../scraper/src/db/save-to-db');
+const { scrapePlay } = require('../../../scraper/src/scrapers/biletinial/play-scraper');
+const { scrapeVenue } = require('../../../scraper/src/scrapers/biletinial/venue-scraper');
+const { saveBiletinialPlay, saveBiletinialVenue } = require('../../../scraper/src/db/save-to-db');
 
 async function listSuggestions(req, res) {
     const accepted = req.query.accepted;
@@ -97,11 +97,11 @@ async function acceptSuggestion(req, res) {
         if (source === 'ibb') {
             const { saveIbbPlay, saveIbbVenue } = require('../../../scraper/src/db/save-to-db');
             if (suggestion.type === 'play' && slug) {
-                const { scrapeIbbPlay } = require('../../../scraper/src/scrapers/ibb-scraper');
+                const { scrapeIbbPlay } = require('../../../scraper/src/scrapers/ibb/ibb-scraper');
                 const playData = await scrapeIbbPlay(slug);
                 createdId = await saveIbbPlay(playData, true);
             } else if (suggestion.type === 'venue' && slug) {
-                const { scrapeVenueDetail } = require('../../../scraper/src/scrapers/ibb-scraper');
+                const { scrapeVenueDetail } = require('../../../scraper/src/scrapers/ibb/ibb-scraper');
                 const detail = await scrapeVenueDetail(slug);
                 const venueData = {
                     name: suggestion.title,
@@ -116,12 +116,13 @@ async function acceptSuggestion(req, res) {
                 createdId = await saveIbbVenue(venueData, true);
             }
         } else {
+            // Biletinial: check DB first — update if found, suggestions if not
             if (suggestion.type === 'play' && slug) {
                 const playData = await scrapePlay(slug);
-                createdId = await savePlay(playData);
+                createdId = await saveBiletinialPlay(playData);
             } else if (suggestion.type === 'venue' && slug) {
                 const venueData = await scrapeVenue(slug);
-                createdId = await saveVenue(venueData);
+                createdId = await saveBiletinialVenue(venueData);
             }
         }
 

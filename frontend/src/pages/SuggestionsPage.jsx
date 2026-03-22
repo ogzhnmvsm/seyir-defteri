@@ -164,7 +164,13 @@ export default function SuggestionsPage() {
                   )}
                   {item.city && <div className="sugg-card-meta">📍 {item.city}</div>}
                   {item.metadata?.datesText && (
-                    <div className="sugg-card-dates">📆 {item.metadata.datesText}</div>
+                    <div className="sugg-card-dates">📅 {item.metadata.datesText}</div>
+                  )}
+                  {item.metadata?.showtimeCount > 0 && (
+                    <div className="sugg-card-showcount">🎟️ {item.metadata.showtimeCount} gösterim</div>
+                  )}
+                  {item.metadata?.duration && (
+                    <div className="sugg-card-meta">⏱ {item.metadata.duration}</div>
                   )}
                   <button
                     className="btn-follow sugg-follow-btn"

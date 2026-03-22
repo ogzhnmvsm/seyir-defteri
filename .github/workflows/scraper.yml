@@ -28,12 +28,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Main Scraper
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npm run scrape:bulk
+      - name: Install Chromium for Puppeteer
+        run: npx puppeteer browsers install chrome
 
-      - name: Run IBB Scraper
+      - name: IBB — Sahneleri çek (FK için önce)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npm run ibb
+        run: node scrape.js ibb venues
+
+      - name: IBB — Tüm oyunları keşfet ve kaydet
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: node scrape.js ibb discover
+
+      - name: Biletinial — Yeni oyunları keşfet (suggestions'a)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: node scrape.js biletinial discover
+

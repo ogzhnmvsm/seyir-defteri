@@ -11,12 +11,11 @@ const TR_MONTHS = {
 };
 
 /**
- * "25 Şubat Çarşamba, 15:00" → ISO datetime string (yıl olarak cari yılı kullan)
+ * "25 Şubat Çarşamba, 15:00" → ISO datetime string
  * Eğer tarih geçmişte kalmışsa bir sonraki yıla at.
  */
 function parseTurkishDateTime(text) {
     try {
-        // Örnek: "25 Şubat Çarşamba, 15:00"
         const match = text.trim().match(/^(\d{1,2})\s+(\S+)\s+\S+,\s+(\d{2}:\d{2})$/);
         if (!match) return null;
         const [, day, monthTR, time] = match;
@@ -25,7 +24,6 @@ function parseTurkishDateTime(text) {
         const [hour, minute] = time.split(':');
         const now = new Date();
         let year = now.getFullYear();
-        // Eğer bu ay/gün geçmişte kaldıysa bir sonraki yıla at
         const candidate = new Date(`${year}-${month}-${day.padStart(2, '0')}T${hour}:${minute}:00`);
         if (candidate < now && (now - candidate) > 24 * 60 * 60 * 1000) {
             year += 1;
@@ -50,7 +48,6 @@ async function fetchPage(url) {
 
 /**
  * /oyunlar?page=N sayfasından oyun slug listesi döner.
- * totalPages: kaç sayfa var.
  */
 async function scrapePlayList(page = 1) {
     const url = `${BASE_URL}/oyunlar?page=${page}`;
@@ -58,17 +55,14 @@ async function scrapePlayList(page = 1) {
     const $ = await fetchPage(url);
 
     const slugs = [];
-    // Her kart: .flex.flex-col figure a[href]
     $('main .w-full.flex.flex-wrap > div').each((_, el) => {
         const href = $(el).find('figure a').attr('href');
         if (href) {
-            // href örneği: "oyun/12-gece" veya "/oyun/agri-dagi-efsanesi"
             const slug = href.replace(/^\/?oyun\//, '');
             if (slug) slugs.push(slug);
         }
     });
 
-    // Sayfalama
     const pageLinks = [];
     $('a[href*="/oyunlar?page="]').each((_, el) => {
         const n = parseInt($(el).text().trim());
@@ -97,22 +91,19 @@ async function scrapeAllPlaySlugs() {
 }
 
 /**
- * /oyun/<slug> sayfasını scrape eder, play + showtime verisini döner.
+ * /oyun/<slug> sayfasını scrape eder
  */
 async function scrapeIbbPlay(slug) {
     const url = `${BASE_URL}/oyun/${slug}`;
     console.log(`🎭 Oyun detayı çekiliyor: ${url}`);
     const $ = await fetchPage(url);
 
-    // Başlık
     const title = $('h1').first().text().trim();
 
-    // Poster (main içindeki img, NOT cover; "rounded sm:hidden" class'ı olan)
     const posterSrc = $('main img.rounded').filter((_, el) => {
         return !$(el).attr('src')?.includes('lib/images');
     }).first().attr('src') || null;
 
-    // Açıklama: description p elementleri
     const descParts = [];
     $('main .flex.flex-col.items-start.gap-6 > div > p').each((_, el) => {
         const t = $(el).text().trim();
@@ -120,7 +111,6 @@ async function scrapeIbbPlay(slug) {
     });
     const description = descParts.join('\n\n') || null;
 
-    // Süre
     let duration = null;
     $('span').each((_, el) => {
         const html = $(el).html() || '';
@@ -130,18 +120,14 @@ async function scrapeIbbPlay(slug) {
         }
     });
 
-    // Tür / kategori — liste sayfasında time[datetime] ile geliyordu 
-    // Detay sayfasında doğrudan tür yok; genre boş bırakıyoruz
     const genre = null;
 
-    // Galeri
     const galleryImages = [];
     $('#my-gallery img[itemprop="thumbnail"]').each((_, el) => {
         const src = $(el).attr('src');
         if (src) galleryImages.push(src);
     });
 
-    // Gösterimler
     const showtimes = [];
     $('#gosterimler .w-full.flex.flex-col > div').each((_, el) => {
         const timeText = $(el).find('time').text().trim();
@@ -151,7 +137,6 @@ async function scrapeIbbPlay(slug) {
         const venueSlug = venueName ? slugify(venueName) : null;
         const dateTime = parseTurkishDateTime(timeText);
 
-        // Bilet durumu: "Tükendi" / "Hemen Biletini Al" / "Yakında"
         const ticketLink = $(el).find('a.button_filled');
         const ticketTitle = ticketLink.attr('title') || ticketLink.text().trim();
         const ticketHref = ticketLink.attr('href') || null;
@@ -169,17 +154,8 @@ async function scrapeIbbPlay(slug) {
             city: 'İstanbul',
             ticketUrl,
             status,
-            // save-to-db uyumlu venue nesnesi
-            venue: {
-                name: venueName,
-                url: null,  // sahne URL'i yok detay sayfasında
-                address: null
-            },
-            price: {
-                min: null,
-                text: null,
-                categories: []
-            },
+            venue: { name: venueName, url: null, address: null },
+            price: { min: null, text: null, categories: [] },
             organizer: 'İBB Şehir Tiyatroları'
         });
     });
@@ -199,7 +175,7 @@ async function scrapeIbbPlay(slug) {
 }
 
 /**
- * /sahneler?page=N listesini parse eder, sahne verilerini döner.
+ * /sahneler?page=N listesini parse eder
  */
 async function scrapeVenueList(page = 1) {
     const url = `${BASE_URL}/sahneler?page=${page}`;
@@ -208,31 +184,23 @@ async function scrapeVenueList(page = 1) {
 
     const venues = [];
 
-    // Her sahne bloğu: .w-full.flex (tek yön veya tersine) → info bloğu
     $('main > .w-full.flex').each((_, el) => {
-        // Arka plan resmi için style attr'ı
         const imageDiv = $(el).find('[style*="background-image"]');
         const styleAttr = imageDiv.attr('style') || '';
         const imgMatch = styleAttr.match(/url\(([^)]+)\)/);
         const coverImage = imgMatch ? imgMatch[1].replace(/['"]/g, '') : null;
 
-        // Info bloğu
         const infoDiv = $(el).find('.flex.flex-col.gap-5.max-w-2xl');
         if (!infoDiv.length) return;
 
         const name = infoDiv.find('h2').text().trim();
         if (!name) return;
 
-        // Adres: address elem
         const address = infoDiv.find('address').text().trim().replace(/\s+/g, ' ');
-
-        // Telefon
         const phone = infoDiv.find('a[href^="tel:"]').text().trim();
 
-        // Slug: "Detaylar" linki /sahne/<slug>
         const detailHref = infoDiv.find('a[href^="/sahne/"]').attr('href') || '';
         const slug = detailHref.replace('/sahne/', '');
-
         const ibbUrl = slug ? `${BASE_URL}/sahne/${slug}` : null;
 
         venues.push({
@@ -248,7 +216,6 @@ async function scrapeVenueList(page = 1) {
         });
     });
 
-    // Sayfalama
     const pageLinks = [];
     $('a[href*="/sahneler?page="]').each((_, el) => {
         const n = parseInt($(el).text().trim());
@@ -276,13 +243,14 @@ async function scrapeAllVenues() {
     return all;
 }
 
-/** Sahne detay sayfasından kapasiteyi çeker (bonus) */
+/**
+ * Tek sahne detay sayfasını çeker
+ */
 async function scrapeVenueDetail(slug) {
     try {
         const url = `${BASE_URL}/sahne/${slug}`;
         const $ = await fetchPage(url);
 
-        // Kapasite: "Koltuk Kapasitesi:" span
         let capacity = null;
         $('strong').each((_, el) => {
             if ($(el).text().includes('Koltuk Kapasitesi')) {
@@ -290,7 +258,6 @@ async function scrapeVenueDetail(slug) {
             }
         });
 
-        // Galeri slider resimleri (swiper-slide içindeki img)
         const galleryImages = [];
         $('.mekan_swiper img').each((_, el) => {
             const src = $(el).attr('src');
@@ -304,7 +271,7 @@ async function scrapeVenueDetail(slug) {
     }
 }
 
-/** Basit slug üretici (sadece venue name lookup için) */
+/** Basit slug üretici */
 function slugify(str) {
     return str
         .toLowerCase()

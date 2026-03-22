@@ -1,7 +1,7 @@
-const { discoverPlays } = require('../../../scraper/src/scrapers/discover-plays');
-const { scrapePlay } = require('../../../scraper/src/scrapers/play-scraper');
-const { scrapeVenue } = require('../../../scraper/src/scrapers/venue-scraper');
-const { saveSuggestion, savePlay, saveVenue } = require('../../../scraper/src/db/save-to-db');
+const { discoverPlays } = require('../../../scraper/src/scrapers/biletinial/discover');
+const { scrapePlay } = require('../../../scraper/src/scrapers/biletinial/play-scraper');
+const { scrapeVenue } = require('../../../scraper/src/scrapers/biletinial/venue-scraper');
+const { saveSuggestion, saveBiletinialPlay, saveBiletinialVenue } = require('../../../scraper/src/db/save-to-db');
 
 async function runDiscover(req, res) {
     const startUrl = req.body.startUrl || 'https://biletinial.com/tr-tr/tiyatro/istanbul?minprice=0&maxprice=22000&order=1';
@@ -36,10 +36,7 @@ async function runScrapePlay(req, res) {
     const slug = req.params.slug;
     try {
         const playData = await scrapePlay(slug);
-
-        // JSON kaydet ve DB'ye kaydet
-        await savePlay(playData);
-
+        await saveBiletinialPlay(playData);
         res.json({ ok: true, play: playData.title });
     } catch (err) {
         console.error('Scrape play error', err);
@@ -51,9 +48,7 @@ async function runScrapeVenue(req, res) {
     const slug = req.params.slug;
     try {
         const venueData = await scrapeVenue(slug);
-
-        await saveVenue(venueData);
-
+        await saveBiletinialVenue(venueData);
         res.json({ ok: true, venue: venueData.name });
     } catch (err) {
         console.error('Scrape venue error', err);

@@ -332,6 +332,11 @@ async function saveIbbPlay(playData, forceCreate = false) {
             }
             return playId;
         } else {
+            // Tarih metnini ve gösterim sayısını showtimes'dan üret
+            const showtimes = playData.showtimes || [];
+            const datesText = showtimes.length > 0 ? showtimes[0].dateTimeText || null : null;
+            const showtimeCount = showtimes.length || null;
+
             const suggestionData = {
                 type: 'play',
                 title: playData.title,
@@ -339,7 +344,7 @@ async function saveIbbPlay(playData, forceCreate = false) {
                 image: playData.posterUrl,
                 city: 'İstanbul',
                 url: playData.url,
-                metadata: { source: 'ibb', duration: playData.duration, genre: playData.genre }
+                metadata: { source: 'ibb', duration: playData.duration, genre: playData.genre, datesText, showtimeCount }
             };
             console.log(`✓ IBB Oyun bulunamadı. Öneri listesine (suggestions) eklendi: ${playData.title}`);
             return await saveSuggestion(suggestionData);
@@ -352,4 +357,119 @@ async function saveIbbPlay(playData, forceCreate = false) {
     }
 }
 
-module.exports = { savePlay, saveVenue, saveSuggestion, saveIbbVenue, saveIbbPlay };
+// Biletinial Oyun kaydet (DB'de varsa güncelle, yoksa suggestions'a ekle)
+async function saveBiletinialPlay(playData) {
+    const client = await pool.connect();
+    try {
+        const check = await client.query(
+            'SELECT id FROM plays WHERE slug = $1 OR title ILIKE $2',
+            [playData.slug, playData.title]
+        );
+
+        if (check.rows.length > 0) {
+            const playId = check.rows[0].id;
+            await client.query(
+                `UPDATE plays
+                SET title = $1, description = $2, poster_url = $3,
+                    duration = $4, genre = $5, biletinial_url = $6,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = $7`,
+                [playData.title, playData.description, playData.posterUrl,
+                playData.duration, playData.genre, playData.url, playId]
+            );
+            console.log(`✓ Biletinial Oyun güncellendi: ${playData.title}`);
+
+            // Eski gösterimleri sil ve yeniden yaz
+            await client.query('DELETE FROM showtimes WHERE play_id = $1', [playId]);
+            for (const showtime of playData.showtimes) {
+                const venueId = await findOrCreateVenue(client, showtime.venue);
+                const st = await client.query(
+                    `INSERT INTO showtimes
+                    (play_id, venue_id, city, show_datetime, show_date_text, price_min, price_text, organizer)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                    RETURNING id`,
+                    [playId, venueId, showtime.city, showtime.dateTime,
+                        showtime.dateTimeText,
+                        showtime.price.min ? parseFloat(String(showtime.price.min).replace(/[^0-9,.]/g, '').replace(',', '.')) || null : null,
+                        showtime.price.text, showtime.organizer]
+                );
+                for (const cat of showtime.price.categories) {
+                    await client.query(
+                        `INSERT INTO price_categories (showtime_id, category_name, price) VALUES ($1, $2, $3)`,
+                        [st.rows[0].id, cat.name, parseFloat(String(cat.price).replace(/[^0-9,.]/g, '').replace(',', '.')) || null]
+                    );
+                }
+            }
+            console.log(`✅ Biletinial ${playData.title} güncellendi (${playData.showtimes.length} gösterim)`);
+            return playId;
+        } else {
+            const suggestion = {
+                type: 'play',
+                title: playData.title,
+                slug: playData.slug,
+                image: playData.posterUrl,
+                city: null,
+                url: playData.url,
+                metadata: { source: 'biletinial', duration: playData.duration, genre: playData.genre }
+            };
+            console.log(`✓ Biletinial Oyun sistemde yok. Öneri listesine eklendi: ${playData.title}`);
+            return await saveSuggestion(suggestion);
+        }
+    } catch (err) {
+        console.error('❌ Hata (saveBiletinialPlay):', err);
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
+// Biletinial Mekan kaydet (DB'de varsa güncelle, yoksa suggestions'a ekle)
+async function saveBiletinialVenue(venueData) {
+    const client = await pool.connect();
+    try {
+        const check = await client.query(
+            'SELECT id FROM venues WHERE slug = $1 OR name ILIKE $2',
+            [venueData.slug, venueData.name]
+        );
+
+        if (check.rows.length > 0) {
+            const venueId = check.rows[0].id;
+            await client.query(
+                `UPDATE venues
+                SET name = $1, address = $2, phone = $3, description = $4,
+                    cover_image = $5, biletinial_url = $6, updated_at = CURRENT_TIMESTAMP
+                WHERE id = $7`,
+                [venueData.name, venueData.address, venueData.phone,
+                venueData.description, venueData.coverImage, venueData.url, venueId]
+            );
+            console.log(`✓ Biletinial Mekan güncellendi: ${venueData.name}`);
+
+            if (venueData.galleryImages && venueData.galleryImages.length > 0) {
+                await client.query('DELETE FROM venue_gallery WHERE venue_id = $1', [venueId]);
+                for (const imageUrl of venueData.galleryImages) {
+                    await client.query(`INSERT INTO venue_gallery (venue_id, image_url) VALUES ($1, $2)`, [venueId, imageUrl]);
+                }
+            }
+            return venueId;
+        } else {
+            const suggestion = {
+                type: 'venue',
+                title: venueData.name,
+                slug: venueData.slug,
+                image: venueData.coverImage,
+                city: null,
+                url: venueData.url,
+                metadata: { source: 'biletinial', address: venueData.address, phone: venueData.phone }
+            };
+            console.log(`✓ Biletinial Mekan sistemde yok. Öneri listesine eklendi: ${venueData.name}`);
+            return await saveSuggestion(suggestion);
+        }
+    } catch (err) {
+        console.error('❌ Hata (saveBiletinialVenue):', err);
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
+module.exports = { savePlay, saveVenue, saveSuggestion, saveIbbVenue, saveIbbPlay, saveBiletinialPlay, saveBiletinialVenue };
