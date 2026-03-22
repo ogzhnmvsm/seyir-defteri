@@ -21,8 +21,8 @@ pool.query('SELECT NOW()', (err, res) => {
     if (err) {
         console.error('❌ Database bağlantı hatası:', err);
     } else {
-        console.log('✅ Database bağlantısı başarılı:', res.rows[0]);
-        console.log('📋 Database: ', poolConfig.database);
+        const mode = process.env.DATABASE_URL ? '🌐 Supabase (DATABASE_URL)' : '💻 Local PostgreSQL';
+        console.log(`✅ Database bağlantısı başarılı [${mode}]:`, res.rows[0].now);
     }
 });
 

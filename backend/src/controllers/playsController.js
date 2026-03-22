@@ -1,6 +1,7 @@
 const pool = require('../db/connection');
-const { scrapePlay } = require('../../../scraper/src/scrapers/play-scraper');
-const { savePlay } = require('../../../scraper/src/db/save-to-db');
+const { scrapePlay } = require('../../../scraper/src/scrapers/biletinial/play-scraper');
+const { scrapeIbbPlay } = require('../../../scraper/src/scrapers/ibb/ibb-scraper');
+const { saveBiletinialPlay, saveIbbPlay } = require('../../../scraper/src/db/save-to-db');
 
 // plays tablosuna source + ibb_url kolonu ekle (yoksa)
 async function migratePlaysSchema() {
@@ -126,11 +127,18 @@ async function rescrapePlay(req, res) {
         }
         client.release();
 
-        const slug = check.rows[0].slug;
-        const playData = await scrapePlay(slug);
-        await savePlay(playData);
+        const { slug, source } = check.rows[0];
 
-        res.json({ ok: true, showtimes: playData.showtimes.length });
+        let playData;
+        if (source === 'ibb') {
+            playData = await scrapeIbbPlay(slug);
+            await saveIbbPlay(playData);
+        } else {
+            playData = await scrapePlay(slug);
+            await saveBiletinialPlay(playData);
+        }
+
+        res.json({ ok: true, source: source || 'biletinial', showtimes: playData.showtimes.length });
     } catch (err) {
         console.error('Rescrape error:', err);
         res.status(500).json({ error: 'rescrape_failed' });
