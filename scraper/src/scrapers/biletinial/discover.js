@@ -5,7 +5,11 @@ const DEFAULT_URL = 'https://biletinial.com/tr-tr/tiyatro/istanbul?minprice=0&ma
 async function discoverPlays(startUrl = DEFAULT_URL) {
     console.log(`\n🔎 Biletinial keşfi başlıyor: ${startUrl}\n`);
 
-    const browser = await puppeteer.launch({ headless: true, defaultViewport: null });
+    const browser = await puppeteer.launch({
+        headless: true,
+        defaultViewport: null,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    });
     const page = await browser.newPage();
 
     const discovered = [];
