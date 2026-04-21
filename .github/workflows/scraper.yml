@@ -2,8 +2,8 @@ name: Daily Scraper
 
 on:
   schedule:
-    # Her gün saat 03:00 UTC (TSİ 06:00) çalışır
-    - cron: '0 3 * * *'
+    # Ctesi ve Pazar saat 03:00 UTC (TSİ 06:00) çalışır
+    - cron: '0 3 * * 0,6'
   workflow_dispatch: # Manuel tetiklemeye izin verir
 
 jobs:
